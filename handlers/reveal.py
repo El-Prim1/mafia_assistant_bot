@@ -2,7 +2,7 @@ from aiogram import Router, F, types, Bot
 from aiogram.fsm.context import FSMContext
 
 from utils.keyboards import make_inline_buttons
-from utils.single_screen import send_or_edit_screen
+from utils.single_screen import reset_workflow_state, send_or_edit_screen
 from middlewares.auto_delete import AutoDeleteInputMiddleware
 
 from modules.reveal.logic import process_role_selection, process_forwarded_reveal, process_number_click
@@ -19,14 +19,14 @@ reveal_router.message.middleware(AutoDeleteInputMiddleware())
 
 @reveal_router.callback_query(F.data == "dummy_reveal")
 async def process_dummy_reveal_start(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-    await state.clear()
+    await reset_workflow_state(state)
     
     buttons = {
         ROLE_NAMES["sherif"]: RoleCallback(role_key="sherif").pack(),
         ROLE_NAMES["doctor"]: RoleCallback(role_key="doctor").pack(),
         ROLE_NAMES["homeless"]: RoleCallback(role_key="homeless").pack(),
         ROLE_NAMES["mistress"]: RoleCallback(role_key="mistress").pack(),
-        "🔙 Назад": "back_main_menu",
+        "🔙 Назад": "navigation_back",
     }
 
     await send_or_edit_screen(

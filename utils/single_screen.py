@@ -2,8 +2,42 @@ import logging
 from aiogram import Bot, types
 from aiogram.exceptions import TelegramBadRequest, TelegramAPIError
 from aiogram.fsm.context import FSMContext
+from utils.keyboards import add_back_button
 
 logger = logging.getLogger(__name__)
+
+HISTORY_KEY = "_navigation_history"
+CURRENT_SCREEN_KEY = "_navigation_current_screen"
+MAIN_MESSAGE_ID_KEY = "main_message_id"
+
+
+async def reset_workflow_state(state: FSMContext) -> None:
+    """Clear workflow fields while retaining the current screen/navigation context."""
+    data = await state.get_data()
+    preserved = {
+        key: data[key]
+        for key in (HISTORY_KEY, CURRENT_SCREEN_KEY, MAIN_MESSAGE_ID_KEY)
+        if key in data
+    }
+    await state.clear()
+    if preserved:
+        await state.update_data(**preserved)
+
+
+def _screen_snapshot(
+    data: dict,
+    state_name: str | None,
+) -> dict:
+    workflow_data = {
+        key: value
+        for key, value in data.items()
+        if key not in {HISTORY_KEY, CURRENT_SCREEN_KEY, MAIN_MESSAGE_ID_KEY}
+    }
+    return {"state": state_name, "data": workflow_data}
+
+
+def _same_screen(left: dict | None, right: dict) -> bool:
+    return bool(left) and left.get("state") == right.get("state") and left.get("data") == right.get("data")
 
 
 async def send_or_edit_screen(
@@ -12,14 +46,40 @@ async def send_or_edit_screen(
     state: FSMContext,
     text: str,
     reply_markup: types.InlineKeyboardMarkup | None = None,
-    parse_mode: str | None = "HTML"
+    parse_mode: str | None = "HTML",
+    record_history: bool = True,
+    show_back: bool = True,
 ) -> types.Message | None:
     """
     Универсальная функция Single Screen.
     Редактирует сохраненное сообщение или отправляет новое с сохранением message_id в FSM.
     """
     data = await state.get_data()
-    main_message_id = data.get("main_message_id")
+    if not record_history:
+        data[HISTORY_KEY] = []
+        await state.update_data(**{HISTORY_KEY: []})
+    main_message_id = data.get(MAIN_MESSAGE_ID_KEY)
+    state_name = await state.get_state()
+    current_snapshot = data.get(CURRENT_SCREEN_KEY)
+    next_snapshot = _screen_snapshot(data, state_name)
+
+    if record_history and current_snapshot and not _same_screen(current_snapshot, next_snapshot):
+        history = list(data.get(HISTORY_KEY, []))
+        history.append({
+            "screen": current_snapshot,
+            "text": current_snapshot.get("text", ""),
+            "parse_mode": current_snapshot.get("parse_mode"),
+            "reply_markup": current_snapshot.get("reply_markup"),
+        })
+        await state.update_data(**{HISTORY_KEY: history[-30:]})
+
+    rendered_markup = add_back_button(reply_markup) if show_back else reply_markup
+    next_snapshot.update({
+        "text": text,
+        "parse_mode": parse_mode,
+        "reply_markup": rendered_markup.model_dump() if rendered_markup else None,
+    })
+    await state.update_data(**{CURRENT_SCREEN_KEY: next_snapshot})
 
     if main_message_id:
         try:
@@ -27,7 +87,7 @@ async def send_or_edit_screen(
                 text=text,
                 chat_id=chat_id,
                 message_id=main_message_id,
-                reply_markup=reply_markup,
+                reply_markup=rendered_markup,
                 parse_mode=parse_mode
             )
         except TelegramBadRequest as e:
@@ -55,11 +115,11 @@ async def send_or_edit_screen(
         new_message = await bot.send_message(
             chat_id=chat_id,
             text=text,
-            reply_markup=reply_markup,
+            reply_markup=rendered_markup,
             parse_mode=parse_mode
         )
         # Запоминаем новый ID главного экрана
-        await state.update_data(main_message_id=new_message.message_id)
+        await state.update_data(**{MAIN_MESSAGE_ID_KEY: new_message.message_id})
         return new_message
     except TelegramAPIError as e:
         logger.error(f"Failed to send new screen message: {e}")

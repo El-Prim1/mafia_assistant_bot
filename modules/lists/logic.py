@@ -105,7 +105,7 @@ async def process_forwarded_message_or_text(
              f"{preview_text}\n\n"
              "Перешли следующее сообщение или нажми <b>✅ Готово</b> для получения копируемого списка.",
         reply_markup=make_inline_buttons(
-            buttons={"✅ Готово": "list_ready", "🔙 Назад": "back_main_menu"},
+            buttons={"✅ Готово": "list_ready", "🔙 Назад": "navigation_back"},
             sizes=(1, 1)
         ),
         parse_mode="HTML"
@@ -156,7 +156,7 @@ async def process_ready_button(
                 state=state,
                 text=text,
                 reply_markup=make_inline_buttons(
-                    buttons={"✅ Готово": "list_ready", "🔙 Назад": "back_main_menu"},
+                    buttons={"✅ Готово": "list_ready", "🔙 Назад": "navigation_back"},
                     sizes=(1,)
                 ),
                 parse_mode="HTML"

@@ -24,7 +24,7 @@ async def start_advocate(callback: types.CallbackQuery, state: FSMContext, bot: 
         state=state,
         text="<b>🧑‍⚖️ Помощь Адвокату</b>\n\n"
              "Отправь мне <b>исходный список игроков (1. Имя, 2. Имя...)</b>",
-        reply_markup=make_inline_buttons(buttons={"🔙 Назад": "back_main_menu"}, sizes=(1,)),
+        reply_markup=make_inline_buttons(buttons={"🔙 Назад": "navigation_back"}, sizes=(1,)),
         parse_mode="HTML"
     )
     await callback.answer()
@@ -84,6 +84,6 @@ async def reset_advocate(callback: types.CallbackQuery, state: FSMContext, bot: 
         chat_id=callback.message.chat.id,
         state=state,
         text="🔄 Сессия сброшена. Отправь новый список игроков:",
-        reply_markup=make_inline_buttons(buttons={"🔙 Назад": "back_main_menu"}, sizes=(1,))
+        reply_markup=make_inline_buttons(buttons={"🔙 Назад": "navigation_back"}, sizes=(1,))
     )
     await callback.answer()

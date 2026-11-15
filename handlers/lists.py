@@ -36,7 +36,7 @@ async def start_make_list(callback: types.CallbackQuery, state: FSMContext, bot:
         state=state,
         text=text,
         reply_markup=make_inline_buttons(
-            buttons={"✅ Готово": "list_ready", "🔙 Назад": "back_main_menu"}, 
+            buttons={"✅ Готово": "list_ready", "🔙 Назад": "navigation_back"},
             sizes=(1,)
         ),
         parse_mode="HTML"

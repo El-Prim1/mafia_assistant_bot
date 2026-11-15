@@ -32,7 +32,7 @@ def get_dump_menu_keyboard(players_map: dict[int, str]) -> types.InlineKeyboardM
     action_builder = InlineKeyboardBuilder()
     action_builder.button(text="✅ Готово", callback_data="dump_list_ready")
     action_builder.button(text="🔄 Сбросить", callback_data="dump_list_reset")
-    action_builder.button(text="🏠 На главную", callback_data="back_main_menu")
+    action_builder.button(text="🔙 Назад", callback_data="navigation_back")
     action_builder.adjust(2, 1)
 
     builder.attach(action_builder)

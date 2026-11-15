@@ -7,7 +7,7 @@ from .texts import ROLE_NAMES, REVEAL_TEMPLATES, DUMP_PATTERN
 from .states import RevealState, RoleCallback, NumberCallback, TemplateSelectCallback
 from .keyboards import get_number_keyboard
 from .parser import build_reveal_texts
-from utils.single_screen import send_or_edit_screen
+from utils.single_screen import reset_workflow_state, send_or_edit_screen
 from utils.keyboards import make_inline_buttons, get_copy_keyboard
 from utils.table_dump import parse_table_dump
 
@@ -112,7 +112,7 @@ async def process_role_selection(
         text=f"Выбрана роль: <b>{role_title}</b>\n\n"
              f"• Перешли сообщение игрока {extra_text}"
              f"• <b>ИЛИ</b> отправь сюда текстовый список всех игроков (1. Имя, 2. Имя...)",
-        reply_markup=make_inline_buttons(buttons={"🔙 Назад": "back_main_menu"}, sizes=(1,)),
+        reply_markup=make_inline_buttons(buttons={"🔙 Назад": "navigation_back"}, sizes=(1,)),
         parse_mode="HTML"
     )
     await callback.answer()
@@ -139,9 +139,9 @@ async def process_number_click(
             chat_id=callback.message.chat.id,
             state=state,
             text="Ошибка контекста. Выбери роль заново.",
-            reply_markup=make_inline_buttons(buttons={"🔙 Назад": "back_main_menu"}, sizes=(1,)),
+            reply_markup=make_inline_buttons(buttons={"🔙 Назад": "navigation_back"}, sizes=(1,)),
         )
-        await state.clear()
+        await reset_workflow_state(state)
         return
 
     num = callback_data.number
@@ -227,7 +227,7 @@ async def process_forwarded_reveal(
             state=state,
             text="Ошибка контекста. Выбери роль заново."
         )
-        await state.clear()
+        await reset_workflow_state(state)
         return
 
     origin = message.forward_origin
