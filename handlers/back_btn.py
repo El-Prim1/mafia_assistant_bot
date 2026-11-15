@@ -1,9 +1,40 @@
 from aiogram import types, F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup
-from utils.single_screen import HISTORY_KEY, CURRENT_SCREEN_KEY, MAIN_MESSAGE_ID_KEY
+from texts import MAIN_MENU_TEXT
+from utils.keyboards import make_inline_buttons
+from utils.single_screen import (
+    HISTORY_KEY,
+    CURRENT_SCREEN_KEY,
+    MAIN_MESSAGE_ID_KEY,
+    reset_workflow_state,
+    send_or_edit_screen,
+)
 
 back_btn_router = Router()
+
+
+@back_btn_router.callback_query(F.data == "back_main_menu")
+async def back_to_main_menu(callback: types.CallbackQuery, state: FSMContext):
+    await reset_workflow_state(state)
+    await send_or_edit_screen(
+        bot=callback.bot,
+        chat_id=callback.message.chat.id,
+        state=state,
+        text=MAIN_MENU_TEXT,
+        reply_markup=make_inline_buttons(
+            buttons={
+                "🦹 Вскрыться за...": "dummy_reveal",
+                "🧑‍⚖️ Помощь Адвокату": "advocate_help",
+                "📋 Сделать список": "make_list",
+            },
+            sizes=(2, 1),
+        ),
+        parse_mode="HTML",
+        show_back=False,
+        record_history=False,
+    )
+    await callback.answer()
 
 @back_btn_router.callback_query(F.data == "navigation_back")
 async def navigate_back(callback: types.CallbackQuery, state: FSMContext):

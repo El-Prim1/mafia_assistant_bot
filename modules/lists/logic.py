@@ -55,6 +55,8 @@ async def process_forwarded_message_or_text(
 
     sender_name = None
     if origin.type == MessageOriginType.USER and origin.sender_user:
+        if origin.sender_user.is_bot:
+            return
         sender_name = origin.sender_user.first_name
     elif origin.type == MessageOriginType.HIDDEN_USER:
         sender_name = origin.sender_user_name

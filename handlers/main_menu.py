@@ -46,7 +46,11 @@ async def main_menu(message : types.Message, state: FSMContext):
                         "🧑‍⚖️ Помощь Адвокату" : "advocate_help",
                         "📋 Сделать список" : "make_list"},
             sizes=(2,1)
-        ), parse_mode="HTML", show_back=False, record_history=False
+        ),
+        parse_mode="HTML",
+        show_back=False,
+        record_history=False,
+        force_new=True
     )
     
 @base_router.message(F.text == "❓ Что умеет бот?")
@@ -57,5 +61,7 @@ async def about(message : types.Message, state: FSMContext):
         chat_id=message.chat.id,
         state=state,
         text=POSSIBILITIES_TEXT,
-        parse_mode="HTML"
+        parse_mode="HTML",
+        show_back=False,
+        force_new=True
     )

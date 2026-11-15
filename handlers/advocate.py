@@ -84,6 +84,9 @@ async def reset_advocate(callback: types.CallbackQuery, state: FSMContext, bot: 
         chat_id=callback.message.chat.id,
         state=state,
         text="🔄 Сессия сброшена. Отправь новый список игроков:",
-        reply_markup=make_inline_buttons(buttons={"🔙 Назад": "navigation_back"}, sizes=(1,))
+        reply_markup=make_inline_buttons(
+            buttons={"🏠 Главное меню": "back_main_menu"},
+            sizes=(1,)
+        )
     )
     await callback.answer()

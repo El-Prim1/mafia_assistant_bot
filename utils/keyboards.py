@@ -62,9 +62,9 @@ def get_copy_keyboard(text_to_copy: str) -> types.InlineKeyboardMarkup:
         copy_text=types.CopyTextButton(text=text_to_copy),
     )
     builder.button(
-        text=BACK_TEXT, callback_data=BACK_CALLBACK
+        text="🏠 Главное меню",
+        callback_data="back_main_menu",
     )
-    
     builder.adjust(1,)
         
     return builder.as_markup()

@@ -37,7 +37,15 @@ def _screen_snapshot(
 
 
 def _same_screen(left: dict | None, right: dict) -> bool:
-    return bool(left) and left.get("state") == right.get("state") and left.get("data") == right.get("data")
+    if not left:
+        return False
+    return all(left.get(key) == right.get(key) for key in (
+        "state",
+        "data",
+        "text",
+        "parse_mode",
+        "reply_markup",
+    ))
 
 
 async def send_or_edit_screen(
@@ -49,6 +57,7 @@ async def send_or_edit_screen(
     parse_mode: str | None = "HTML",
     record_history: bool = True,
     show_back: bool = True,
+    force_new: bool = False,
 ) -> types.Message | None:
     """
     Универсальная функция Single Screen.
@@ -63,6 +72,13 @@ async def send_or_edit_screen(
     current_snapshot = data.get(CURRENT_SCREEN_KEY)
     next_snapshot = _screen_snapshot(data, state_name)
 
+    rendered_markup = add_back_button(reply_markup) if show_back else reply_markup
+    next_snapshot.update({
+        "text": text,
+        "parse_mode": parse_mode,
+        "reply_markup": rendered_markup.model_dump() if rendered_markup else None,
+    })
+
     if record_history and current_snapshot and not _same_screen(current_snapshot, next_snapshot):
         history = list(data.get(HISTORY_KEY, []))
         history.append({
@@ -73,15 +89,9 @@ async def send_or_edit_screen(
         })
         await state.update_data(**{HISTORY_KEY: history[-30:]})
 
-    rendered_markup = add_back_button(reply_markup) if show_back else reply_markup
-    next_snapshot.update({
-        "text": text,
-        "parse_mode": parse_mode,
-        "reply_markup": rendered_markup.model_dump() if rendered_markup else None,
-    })
     await state.update_data(**{CURRENT_SCREEN_KEY: next_snapshot})
 
-    if main_message_id:
+    if main_message_id and not force_new:
         try:
             return await bot.edit_message_text(
                 text=text,

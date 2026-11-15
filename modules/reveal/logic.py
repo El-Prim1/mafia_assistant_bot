@@ -242,6 +242,14 @@ async def process_forwarded_reveal(
 
     sender_name = None
     if origin.type == MessageOriginType.USER and origin.sender_user:
+        if origin.sender_user.is_bot:
+            await send_or_edit_screen(
+                bot=bot,
+                chat_id=message.chat.id,
+                state=state,
+                text="Сообщения от ботов не используются для создания заготовки."
+            )
+            return
         sender_name = origin.sender_user.first_name
     elif origin.type == MessageOriginType.HIDDEN_USER:
         sender_name = origin.sender_user_name
