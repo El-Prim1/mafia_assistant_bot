@@ -33,6 +33,7 @@ async def back_to_main_menu(callback: types.CallbackQuery, state: FSMContext):
         parse_mode="HTML",
         show_back=False,
         record_history=False,
+        force_new=True,
     )
     await callback.answer()
 
