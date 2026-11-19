@@ -11,11 +11,6 @@ base_router = Router()
 @base_router.message(CommandStart())
 async def start_msg(message: types.Message, state: FSMContext, bot):
     await reset_workflow_state(state)
-    await message.answer(HELLO_TEXT, parse_mode="HTML",
-                        reply_markup=make_reply_buttons(
-                            buttons=["❓ Что умеет бот?", "🏠 Главное меню"],
-                            sizes=(2,)
-                        ))
     
     await send_or_edit_screen(
                         bot=bot,
