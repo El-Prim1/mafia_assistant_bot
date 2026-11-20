@@ -11,7 +11,11 @@ base_router = Router()
 @base_router.message(CommandStart())
 async def start_msg(message: types.Message, state: FSMContext):
     await reset_workflow_state(state)
-    
+
+    await send_or_edit_screen(bot=message.bot,
+                            chat_id=message.chat.id,
+                            state = state,
+                            text = HELLO_TEXT)
     await send_or_edit_screen(
                         bot=message.bot,
                         chat_id=message.chat.id,
