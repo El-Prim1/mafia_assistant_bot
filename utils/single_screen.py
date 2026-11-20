@@ -31,7 +31,8 @@ def _screen_snapshot(
     workflow_data = {
         key: value
         for key, value in data.items()
-        if key not in {HISTORY_KEY, CURRENT_SCREEN_KEY, MAIN_MESSAGE_ID_KEY}
+        if key
+        not in {HISTORY_KEY, CURRENT_SCREEN_KEY, MAIN_MESSAGE_ID_KEY, "_last_activity"}
     }
     return {"state": state_name, "data": workflow_data}
 
