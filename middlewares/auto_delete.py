@@ -6,6 +6,8 @@ import logging
 
 from aiogram.exceptions import TelegramAPIError
 
+from utils.keyboards import MAIN_MENU_REPLY_BUTTON_TEXTS
+
 logger = logging.getLogger(__name__)
 
 class AutoDeleteInputMiddleware(BaseMiddleware):
@@ -17,6 +19,9 @@ class AutoDeleteInputMiddleware(BaseMiddleware):
     ) -> Any:
         # Проверяем, что входящее событие является именно Message
         if not isinstance(event, Message):
+            return await handler(event, data)
+
+        if event.text in MAIN_MENU_REPLY_BUTTON_TEXTS:
             return await handler(event, data)
 
         state: FSMContext | None = data.get("state")

@@ -4,6 +4,9 @@ from aiogram import types
 
 BACK_CALLBACK = "navigation_back"
 BACK_TEXT = "🔙 Назад"
+ABOUT_REPLY_BUTTON_TEXT = "❓ Что умеет бот?"
+MAIN_MENU_REPLY_BUTTON_TEXT = "🏠 Главное меню"
+MAIN_MENU_REPLY_BUTTON_TEXTS = (ABOUT_REPLY_BUTTON_TEXT, MAIN_MENU_REPLY_BUTTON_TEXT)
 
 def make_reply_buttons(
     buttons: list[str],
