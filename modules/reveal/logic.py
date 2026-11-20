@@ -216,6 +216,7 @@ async def process_forwarded_reveal(
             reply_markup=get_number_keyboard(table_players),
             parse_mode="HTML"
         )
+        return
 
     data = await state.get_data()
     role_key = data.get("selected_role")

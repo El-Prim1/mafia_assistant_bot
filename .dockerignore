@@ -1,0 +1,30 @@
+# Environment / secrets — never bake into the image
+.env
+.env.*
+!.env.example
+
+# Version control and IDE
+.git
+.gitignore
+.vscode
+
+# Python bytecode / caches
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Virtual environments
+.venv/
+venv/
+
+# Test and coverage artifacts
+.coverage
+htmlcov/
+
+# Local docs / tooling not needed at runtime
+README.md
+AGENT_RULES.md
+docker-compose*.yml

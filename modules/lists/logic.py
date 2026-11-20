@@ -71,6 +71,8 @@ async def process_forwarded_message_or_text(
     words = [re.sub(r"[^\w]", "", w).lower() for w in text.lower().split()]
     contains = any(word in REQUIRED_WORDS for word in words)
 
+    role = None  # Initialize to avoid UnboundLocalError when no keyword matches
+
     if contains:
         for i, word in enumerate(words):
             if word == "мирный" and i + 1 < len(words) and words[i + 1] == "житель":
@@ -87,10 +89,12 @@ async def process_forwarded_message_or_text(
     data = await state.get_data()
     roles_dict = dict(data.get("roles_dict", {}))
     
-    safe_name = html.quote(sender_name)
-    roles_dict[safe_name] = role
-    
-    await state.update_data(roles_dict=roles_dict)
+    # Store the player only when a role was actually recognized;
+    # otherwise avoid polluting state with a meaningless "None" role.
+    if role is not None:
+        safe_name = html.quote(sender_name)
+        roles_dict[safe_name] = role
+        await state.update_data(roles_dict=roles_dict)
 
     # --- Предпросмотр накопленного списка ---
     roles_list = [
