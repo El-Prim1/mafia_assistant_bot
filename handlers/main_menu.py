@@ -9,11 +9,11 @@ base_router = Router()
 
 # Хэндлеры команд
 @base_router.message(CommandStart())
-async def start_msg(message: types.Message, state: FSMContext, bot):
+async def start_msg(message: types.Message, state: FSMContext):
     await reset_workflow_state(state)
     
     await send_or_edit_screen(
-                        bot=bot,
+                        bot=message.bot,
                         chat_id=message.chat.id,
                         state=state,
                         text="Жми на кнопку ниже и забирай победу! 👇",
