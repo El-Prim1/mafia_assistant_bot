@@ -79,14 +79,29 @@ async def send_or_edit_screen(
         "reply_markup": rendered_markup.model_dump() if rendered_markup else None,
     })
 
-    if record_history and current_snapshot and not _same_screen(current_snapshot, next_snapshot):
+    if record_history:
         history = list(data.get(HISTORY_KEY, []))
-        history.append({
-            "screen": current_snapshot,
-            "text": current_snapshot.get("text", ""),
-            "parse_mode": current_snapshot.get("parse_mode"),
-            "reply_markup": current_snapshot.get("reply_markup"),
-        })
+        if current_snapshot and not _same_screen(current_snapshot, next_snapshot):
+            # Transition to a different screen — record the previous screen
+            # so the Back button can restore it.
+            history.append({
+                "screen": current_snapshot,
+                "text": current_snapshot.get("text", ""),
+                "parse_mode": current_snapshot.get("parse_mode"),
+                "reply_markup": current_snapshot.get("reply_markup"),
+            })
+        elif not current_snapshot:
+            # First screen setup (current_snapshot is None, e.g. after start_msg with
+            # message.answer() that bypassed send_or_edit_screen, or after a full
+            # reset_workflow_state where no snapshot was preserved).
+            # Record the initial screen so Back navigation works.
+            if not history:  # Avoid duplicate entries from a previous workflow
+                history.append({
+                    "screen": next_snapshot,
+                    "text": next_snapshot.get("text", ""),
+                    "parse_mode": next_snapshot.get("parse_mode"),
+                    "reply_markup": next_snapshot.get("reply_markup"),
+                })
         await state.update_data(**{HISTORY_KEY: history[-30:]})
 
     await state.update_data(**{CURRENT_SCREEN_KEY: next_snapshot})
