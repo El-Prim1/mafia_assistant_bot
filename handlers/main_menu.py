@@ -23,11 +23,7 @@ async def start_msg(message: types.Message, state: FSMContext):
                                sizes=(2,)
                            ))
     
-    await send_or_edit_screen(
-                        bot=message.bot,
-                        chat_id=message.chat.id,
-                        state=state,
-                        text="Жми на кнопку ниже и забирай победу! 👇",
+    await message.answer("Жми на кнопку ниже и забирай победу! 👇",
                         reply_markup=make_inline_buttons(
                             buttons = {"🦹 Вскрыться за..." : "dummy_reveal",
                                         "🧑‍⚖️ Помощь Адвокату" : "advocate_help",
